@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code Translator · Dev Sheet V1</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           #090b10;
+      --panel-l:      #0d0f15;
+      --panel-r:      #0b0d14;
+      --border:       #181b28;
+      --border-glow:  #1e2235;
+      --header-bg:    #070810;
+      --text:         #c9cce8;
+      --text-dim:     #3f4465;
+      --text-mid:     #6b7099;
+      --accent:       #5b9cf6;
+
+      --loop:      #ff8c42;
+      --cond:      #f87171;
+      --func:      #c084fc;
+      --output:    #4ade80;
+      --value:     #fbbf24;
+      --variable:  #7cb3ff;
+      --structure: #2dd4bf;
+      --syntax:    #464d6a;
+      --comment-c: #2e3352;
+    }
+
+    html, body { height: 100%; overflow: hidden; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── HEADER ──────────────────────────────── */
+    header {
+      background: var(--header-bg);
+      border-bottom: 1px solid var(--border);
+      height: 54px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 10;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+    .logo-mark {
+      width: 30px;
+      height: 30px;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--func) 100%);
+      border-radius: 7px;
+      display: grid;
+      place-items: center;
+      font-size: 11px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.03em;
+      box-shadow: 0 0 16px rgba(91,156,246,0.25);
+    }
+    .logo-title {
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: var(--text);
+    }
+    .logo-sub {
+      font-size: 9.5px;
+      letter-spacing: 0.14em;
+      color: var(--text-dim);
+      font-weight: 600;
+      margin-top: 1px;
+    }
+
+    .legend {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .leg {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+      transition: color 0.15s;
+    }
+    .leg:hover { color: var(--text-mid); }
+    .leg-dot {
+      width: 7px; height: 7px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .btn {
+      font-family: 'Syne', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      padding: 5px 12px;
+      border-radius: 5px;
+      border: 1px solid var(--border-glow);
+      background: transparent;
+      color: var(--text-mid);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn:hover {
+      background: var(--border-glow);
+      color: var(--text);
+    }
+
+    /* ── WORKSPACE ───────────────────────────── */
+    .workspace {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+    .panel + .panel {
+      border-left: 1px solid var(--border);
+    }
+
+    .panel-bar {
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      background: var(--header-bg);
+    }
+    .panel-label {
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      color: var(--text-dim);
+    }
+    .badge {
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      padding: 2px 9px;
+      border-radius: 3px;
+    }
+    .badge-py  { background: #0f1e3a; color: #5b9cf6; border: 1px solid #162a55; }
+    .badge-ann { background: #180d2e; color: #c084fc; border: 1px solid #2a1550; }
+
+    /* ── LEFT PANEL ──────────────────────────── */
+    .input-panel { background: var(--panel-l); }
+
+    .textarea-wrap {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+    }
+
+    .line-nums {
+      padding: 18px 10px 18px 14px;
+      font-family: 'Fira Code', monospace;
+      font-size: 13px;
+      line-height: 1.75;
+      color: var(--text-dim);
+      text-align: right;
+      user-select: none;
+      pointer-events: none;
+      min-width: 44px;
+      flex-shrink: 0;
+      opacity: 0.45;
+      overflow: hidden;
+    }
+
+    #code-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      resize: none;
+      color: #7a8aaa;
+      font-family: 'Fira Code', monospace;
+      font-size: 13px;
+      line-height: 1.75;
+      padding: 18px 18px 18px 4px;
+      tab-size: 4;
+      caret-color: var(--accent);
+      overflow: auto;
+    }
+    #code-input::placeholder { color: var(--text-dim); font-style: italic; }
+
+    /* ── RIGHT PANEL ─────────────────────────── */
+    .output-panel { background: var(--panel-r); }
+
+    #code-output {
+      flex: 1;
+      overflow: auto;
+      padding: 18px;
+      font-family: 'Fira Code', monospace;
+      font-size: 13px;
+      line-height: 1.75;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    /* Empty state */
+    .empty-state {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      color: var(--text-dim);
+      pointer-events: none;
+    }
+    .empty-icon {
+      font-size: 28px;
+      opacity: 0.2;
+    }
+    .empty-text {
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      opacity: 0.4;
+    }
+
+    /* ── TOKENS ──────────────────────────────── */
+    .tok {
+      cursor: default;
+      border-radius: 2px;
+      padding: 0 1px;
+      transition: background 0.1s;
+    }
+    .tok[data-tip]:hover {
+      background: rgba(255,255,255,0.055);
+    }
+
+    /* ── TOOLTIP ─────────────────────────────── */
+    #tooltip {
+      position: fixed;
+      z-index: 9999;
+      pointer-events: none;
+      display: none;
+      max-width: 290px;
+      min-width: 190px;
+    }
+    .tip-inner {
+      background: #0f1120;
+      border: 1px solid #23263d;
+      border-radius: 9px;
+      padding: 13px 15px;
+      box-shadow:
+        0 12px 40px rgba(0,0,0,0.7),
+        0 0 0 1px rgba(91,156,246,0.07),
+        inset 0 1px 0 rgba(255,255,255,0.03);
+    }
+    .tip-cat {
+      font-size: 8.5px;
+      font-weight: 800;
+      letter-spacing: 0.2em;
+      margin-bottom: 7px;
+    }
+    .tip-exp {
+      font-size: 12px;
+      line-height: 1.55;
+      color: #b8bcd6;
+      font-family: 'Syne', sans-serif;
+      font-weight: 400;
+      margin-bottom: 9px;
+    }
+    .tip-mnem {
+      font-family: 'Fira Code', monospace;
+      font-size: 11px;
+      color: var(--accent);
+      padding: 5px 9px;
+      background: rgba(91,156,246,0.07);
+      border-left: 2px solid var(--accent);
+      border-radius: 0 4px 4px 0;
+      line-height: 1.4;
+    }
+
+    /* ── STATUS BAR ──────────────────────────── */
+    .statusbar {
+      height: 26px;
+      display: flex;
+      align-items: center;
+      padding: 0 18px;
+      border-top: 1px solid var(--border);
+      background: var(--header-bg);
+      gap: 20px;
+      flex-shrink: 0;
+    }
+    .stat {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: var(--text-dim);
+      display: flex;
+      gap: 5px;
+    }
+    .stat-val { color: var(--text-mid); }
+
+    /* ── SCROLLBAR ───────────────────────────── */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border-glow); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #2a2f4a; }
+
+    /* ── FILE UPLOAD HIDDEN INPUT ────────────── */
+    #file-input { display: none; }
+  </style>
+</head>
+<body>
+
+<!-- ═══ HEADER ════════════════════════════════ -->
+<header>
+  <div class="logo">
+    <div class="logo-mark">CT</div>
+    <div>
+      <div class="logo-title">CODE TRANSLATOR</div>
+      <div class="logo-sub">DEV SHEET V1 · PYTHON</div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="leg"><div class="leg-dot" style="background:var(--loop)"></div>LOOP</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--cond)"></div>CONDITION</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--func)"></div>FUNCTION</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--output)"></div>OUTPUT</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--value)"></div>VALUE</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--variable)"></div>VARIABLE</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--structure)"></div>STRUCTURE</div>
+  </div>
+
+  <div class="header-actions">
+    <label for="file-input" class="btn" style="display:inline-flex;align-items:center;gap:5px;">↑ UPLOAD .PY</label>
+    <input type="file" id="file-input" accept=".py,.txt">
+    <button class="btn" id="btn-clear">CLEAR</button>
+  </div>
+</header>
+
+<!-- ═══ WORKSPACE ═════════════════════════════ -->
+<div class="workspace">
+
+  <!-- LEFT: Input -->
+  <div class="panel input-panel">
+    <div class="panel-bar">
+      <span class="panel-label">INPUT</span>
+      <span class="badge badge-py">Python 3</span>
+    </div>
+    <div class="textarea-wrap">
+      <div class="line-nums" id="line-nums"></div>
+      <textarea id="code-input" spellcheck="false" autocorrect="off" autocapitalize="off"
+        placeholder="Paste Python code here…"></textarea>
+    </div>
+  </div>
+
+  <!-- RIGHT: Output -->
+  <div class="panel output-panel">
+    <div class="panel-bar">
+      <span class="panel-label">ANNOTATED OUTPUT</span>
+      <span class="badge badge-ann">Hover any token</span>
+    </div>
+    <pre id="code-output"><div class="empty-state"><div class="empty-icon">⟡</div><div class="empty-text">Paste code on the left</div></div></pre>
+  </div>
+
+</div>
+
+<!-- ═══ STATUS BAR ═══════════════════════════ -->
+<div class="statusbar">
+  <div class="stat">TOKENS <span class="stat-val" id="stat-tokens">—</span></div>
+  <div class="stat">LINES <span class="stat-val" id="stat-lines">—</span></div>
+  <div class="stat">KEYWORDS <span class="stat-val" id="stat-kw">—</span></div>
+  <div class="stat">HOVER ANY HIGHLIGHTED TOKEN FOR EXPLANATION</div>
+</div>
+
+<!-- ═══ TOOLTIP ══════════════════════════════ -->
+<div id="tooltip">
+  <div class="tip-inner">
+    <div class="tip-cat" id="tip-cat"></div>
+    <div class="tip-exp" id="tip-exp"></div>
+    <div class="tip-mnem" id="tip-mnem"></div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ══════════════════════════════════════════════
+//  DATA LAYER
+// ══════════════════════════════════════════════
+
+const KW = new Set([
+  'False','None','True','and','as','assert','async','await',
+  'break','class','continue','def','del','elif','else','except',
+  'finally','for','from','global','if','import','in','is',
+  'lambda','nonlocal','not','or','pass','raise','return','try',
+  'while','with','yield'
+]);
+
+const BUILTINS = new Set([
+  'print','len','range','input','int','str','float','list',
+  'dict','set','tuple','bool','type','enumerate','zip','map',
+  'filter','sorted','reversed','sum','min','max','abs','round',
+  'isinstance','hasattr','getattr','setattr','open','any','all',
+  'repr','id','hash','hex','bin','oct','chr','ord','format',
+  'vars','dir','callable','iter','next','super','object','help'
+]);
+
+// Token annotation data: explanation + mnemonic + category
+const TD = {
+  // ── LOOP KEYWORDS
+  'for':       { e:"Repeats a block once for each item in a collection, from top to bottom",              m:"FOR each item — do this", cat:"LOOP" },
+  'while':     { e:"Keeps running the block below as long as the condition stays true",                    m:"WHILE this is true — keep going", cat:"LOOP" },
+  'in':        { e:"Inside a for-loop, tells Python where to pull each item from",                        m:"Pull each item IN from here", cat:"LOOP" },
+  'break':     { e:"Immediately exits the current loop, skipping any remaining iterations",               m:"BREAK out — stop the loop now", cat:"LOOP" },
+  'continue':  { e:"Skips the rest of this loop pass and jumps straight to the next iteration",           m:"CONTINUE to the next one", cat:"LOOP" },
+  // ── CONDITION KEYWORDS
+  'if':        { e:"Only runs the block below when the condition evaluates to True",                       m:"IF this is true — do it", cat:"CONDITION" },
+  'elif':      { e:"Another condition to try when the previous if/elif was False",                        m:"ELSE IF the first didn't match — try this", cat:"CONDITION" },
+  'else':      { e:"Runs when every if and elif above it was False — the fallback",                       m:"In every OTHER case — do this", cat:"CONDITION" },
+  'not':       { e:"Flips a boolean — True becomes False, False becomes True",                            m:"NOT = flip it around", cat:"CONDITION" },
+  'and':       { e:"Both sides must be True for the whole expression to be True",                         m:"AND = both sides must win", cat:"CONDITION" },
+  'or':        { e:"At least one side must be True for the expression to pass",                           m:"OR = just one needs to work", cat:"CONDITION" },
+  'is':        { e:"Checks if two variables point to the exact same object in memory (not just equal)",   m:"IS = literally the same thing?", cat:"CONDITION" },
+  'assert':    { e:"Checks that a condition is True — crashes with AssertionError if not",                m:"ASSERT = this must be true, I promise", cat:"CONDITION" },
+  // ── FUNCTION KEYWORDS
+  'def':       { e:"Defines a new named function — a reusable block you can call later",                  m:"DEFine a new ability", cat:"FUNCTION" },
+  'return':    { e:"Sends a value back out of the function to whoever called it, then stops",             m:"RETURN this result to the caller", cat:"FUNCTION" },
+  'lambda':    { e:"Creates a small anonymous function in a single expression — no name needed",          m:"LAMBDA = a one-liner function", cat:"FUNCTION" },
+  'yield':     { e:"Returns a value from a generator and pauses — resumes on the next call",             m:"YIELD = give one, pause, resume", cat:"FUNCTION" },
+  // ── STRUCTURE KEYWORDS
+  'class':     { e:"Defines a blueprint for creating objects — groups data and behavior together",        m:"CLASS = blueprint for objects", cat:"STRUCTURE" },
+  'with':      { e:"Opens a context like a file, runs the block, then closes it automatically",           m:"WITH this open — do your work", cat:"STRUCTURE" },
+  'as':        { e:"Gives an imported module or context manager a shorter alias to use here",             m:"AS = call it this instead", cat:"STRUCTURE" },
+  'import':    { e:"Brings in a module — a file full of functions and tools",                             m:"IMPORT = grab tools from another toolbox", cat:"STRUCTURE" },
+  'from':      { e:"Specifies which module to import something from",                                     m:"FROM this toolbox — grab...", cat:"STRUCTURE" },
+  'try':       { e:"Attempts to run the block — if an error occurs, 'except' catches it",                m:"TRY this — I hope it works", cat:"STRUCTURE" },
+  'except':    { e:"Catches and handles errors that happened in the 'try' block above",                   m:"EXCEPT when it breaks — catch it", cat:"STRUCTURE" },
+  'finally':   { e:"Always runs after try/except, whether it succeeded or raised an error",              m:"FINALLY — runs no matter what", cat:"STRUCTURE" },
+  'raise':     { e:"Throws an exception intentionally — stops execution with an error message",           m:"RAISE the alarm — something went wrong", cat:"STRUCTURE" },
+  'pass':      { e:"Does absolutely nothing — a placeholder so an empty block stays valid Python",        m:"PASS = skip this for now", cat:"STRUCTURE" },
+  'global':    { e:"Declares that a variable refers to the one in the outermost (global) scope",         m:"GLOBAL = use the outer one", cat:"STRUCTURE" },
+  'nonlocal':  { e:"Like global but for the nearest enclosing function scope instead",                    m:"NONLOCAL = use the enclosing one", cat:"STRUCTURE" },
+  'del':       { e:"Removes a variable name or deletes an item from a list or dictionary",               m:"DEL = delete this", cat:"STRUCTURE" },
+  'async':     { e:"Marks a function as asynchronous — it can pause without blocking everything else",   m:"ASYNC = runs without waiting", cat:"STRUCTURE" },
+  'await':     { e:"Pauses an async function here until the awaited thing finishes",                      m:"AWAIT = wait for this, then continue", cat:"STRUCTURE" },
+  // ── VALUE LITERALS
+  'True':      { e:"The boolean value for yes, correct, or on — one of only two booleans",               m:"TRUE = yes, it's on", cat:"VALUE" },
+  'False':     { e:"The boolean value for no, incorrect, or off — the other boolean",                    m:"FALSE = no, it's off", cat:"VALUE" },
+  'None':      { e:"Represents the complete absence of a value — not zero, not empty, just nothing",     m:"NONE = empty hands", cat:"VALUE" },
+  // ── BUILTINS
+  'print':     { e:"Displays values on the screen — your main window into what the code is doing",       m:"PRINT = shout it out loud", cat:"OUTPUT" },
+  'len':       { e:"Returns the number of items in a string, list, tuple, or other collection",          m:"LEN = how long is this?", cat:"FUNCTION" },
+  'range':     { e:"Generates a sequence of integers — range(5) gives 0, 1, 2, 3, 4",                   m:"RANGE = count from here to there", cat:"FUNCTION" },
+  'input':     { e:"Pauses execution and asks the user to type something — returns their text",           m:"INPUT = ask the user", cat:"FUNCTION" },
+  'int':       { e:"Converts a value to a whole number, dropping any decimal part",                      m:"INT = make it a whole number", cat:"FUNCTION" },
+  'str':       { e:"Converts any value to its text representation",                                       m:"STR = turn it into text", cat:"FUNCTION" },
+  'float':     { e:"Converts a value to a decimal (floating-point) number",                              m:"FLOAT = make it a decimal", cat:"FUNCTION" },
+  'list':      { e:"Converts a collection into a mutable list you can add to or change",                 m:"LIST = make it a list", cat:"FUNCTION" },
+  'dict':      { e:"Creates a dictionary — a lookup table of key → value pairs",                         m:"DICT = a lookup table", cat:"FUNCTION" },
+  'set':       { e:"Creates a set — a collection with no duplicates, fast membership checks",            m:"SET = a bag of unique things", cat:"FUNCTION" },
+  'tuple':     { e:"Creates a tuple — an immutable (locked) list you cannot change after creation",      m:"TUPLE = a locked list", cat:"FUNCTION" },
+  'bool':      { e:"Converts a value to True or False based on whether it's 'truthy' or 'falsy'",        m:"BOOL = is it truthy?", cat:"FUNCTION" },
+  'type':      { e:"Returns the type/class of a value — int, str, list, etc.",                           m:"TYPE = what kind of thing is this?", cat:"FUNCTION" },
+  'enumerate': { e:"Adds a counter to each item as you loop — yields (index, value) pairs",              m:"ENUMERATE = number each item", cat:"FUNCTION" },
+  'zip':       { e:"Pairs items from two or more lists — (a[0],b[0]), (a[1],b[1])...",                  m:"ZIP = stitch lists together", cat:"FUNCTION" },
+  'map':       { e:"Applies a function to every item in a collection — returns an iterator",             m:"MAP = do this to each one", cat:"FUNCTION" },
+  'filter':    { e:"Keeps only items that pass a test — returns an iterator of the survivors",           m:"FILTER = only keep what passes", cat:"FUNCTION" },
+  'sorted':    { e:"Returns a new sorted list — does not change the original",                           m:"SORTED = put them in order", cat:"FUNCTION" },
+  'reversed':  { e:"Returns an iterator going through the collection in reverse order",                  m:"REVERSED = flip the order", cat:"FUNCTION" },
+  'sum':       { e:"Adds all numbers in a collection together — returns the total",                      m:"SUM = add them all up", cat:"FUNCTION" },
+  'max':       { e:"Returns the largest value from a collection or from multiple arguments",             m:"MAX = find the biggest", cat:"FUNCTION" },
+  'min':       { e:"Returns the smallest value from a collection or from multiple arguments",            m:"MIN = find the smallest", cat:"FUNCTION" },
+  'abs':       { e:"Returns the absolute value — strips the minus sign, always returns positive",        m:"ABS = always positive", cat:"FUNCTION" },
+  'round':     { e:"Rounds a number to the nearest whole number, or to N decimal places",               m:"ROUND = nearest whole", cat:"FUNCTION" },
+  'isinstance':{ e:"Checks if a value is an instance of a given class or type",                         m:"isinstance = is it this type?", cat:"FUNCTION" },
+  'open':      { e:"Opens a file for reading, writing, or both — use with 'with' to auto-close",        m:"OPEN = unlock this file", cat:"FUNCTION" },
+  'any':       { e:"Returns True if at least one item in the collection is truthy",                      m:"ANY = does even one pass?", cat:"FUNCTION" },
+  'all':       { e:"Returns True only if every single item in the collection is truthy",                 m:"ALL = do they all pass?", cat:"FUNCTION" },
+  'repr':      { e:"Returns a developer-readable string representation of an object",                   m:"REPR = show me the internals", cat:"FUNCTION" },
+  'hasattr':   { e:"Checks if an object has an attribute with a given name",                             m:"HASATTR = does it have this?", cat:"FUNCTION" },
+  'getattr':   { e:"Gets the value of an attribute from an object by name",                              m:"GETATTR = fetch this from it", cat:"FUNCTION" },
+  'callable':  { e:"Returns True if the object can be called like a function",                           m:"CALLABLE = can I call it?", cat:"FUNCTION" },
+  // ── OPERATORS
+  '=':   { e:"Assigns a value to a variable name — 'store this and remember it as'",              m:"= means 'remember this as'", cat:"OPERATOR" },
+  '==':  { e:"Checks equality — returns True if both sides have the same value",                   m:"== means 'are these the same?'", cat:"OPERATOR" },
+  '!=':  { e:"Checks inequality — returns True if the sides have different values",                m:"!= means 'are these different?'", cat:"OPERATOR" },
+  '<':   { e:"Returns True if the left value is strictly smaller than the right",                  m:"< points to the smaller side", cat:"OPERATOR" },
+  '>':   { e:"Returns True if the left value is strictly larger than the right",                   m:"> points away from the smaller", cat:"OPERATOR" },
+  '<=':  { e:"Returns True if left is smaller than or exactly equal to right",                    m:"<= smaller or matching", cat:"OPERATOR" },
+  '>=':  { e:"Returns True if left is larger than or exactly equal to right",                     m:">= bigger or matching", cat:"OPERATOR" },
+  '+':   { e:"Adds two numbers together, or joins (concatenates) two strings end to end",          m:"+ = bring them together", cat:"OPERATOR" },
+  '-':   { e:"Subtracts the right value from the left value",                                     m:"- = take away", cat:"OPERATOR" },
+  '*':   { e:"Multiplies two numbers, or repeats a string N times",                               m:"* = multiply it out", cat:"OPERATOR" },
+  '/':   { e:"Divides left by right — the result is always a decimal (float)",                   m:"/ = split it up", cat:"OPERATOR" },
+  '//':  { e:"Floor division — divides and rounds down to the nearest whole number",               m:"// = divide, drop the decimal", cat:"OPERATOR" },
+  '**':  { e:"Raises left to the power of right — 2**8 = 256",                                   m:"** = power up", cat:"OPERATOR" },
+  '%':   { e:"Modulo — returns the remainder after dividing. 10 % 3 = 1",                        m:"% = what's left over?", cat:"OPERATOR" },
+  '+=':  { e:"Add-and-assign — x += 1 is shorthand for x = x + 1",                              m:"+= add and update", cat:"OPERATOR" },
+  '-=':  { e:"Subtract-and-assign — x -= 1 is shorthand for x = x - 1",                         m:"-= subtract and update", cat:"OPERATOR" },
+  '*=':  { e:"Multiply-and-assign — x *= 2 is shorthand for x = x * 2",                         m:"*= multiply and update", cat:"OPERATOR" },
+  '/=':  { e:"Divide-and-assign — x /= 2 is shorthand for x = x / 2",                           m:"/= divide and update", cat:"OPERATOR" },
+  // ── PUNCTUATION
+  '(':   { e:"Opens a group — holds function arguments, mathematical expressions, or conditions", m:"( = open the box", cat:"SYNTAX" },
+  ')':   { e:"Closes the group opened by the matching '('",                                       m:") = close the box", cat:"SYNTAX" },
+  '[':   { e:"Opens a list literal, or accesses an item at a specific index with [ ]",           m:"[ = open the shelf", cat:"SYNTAX" },
+  ']':   { e:"Closes the list or index access opened by '['",                                    m:"] = close the shelf", cat:"SYNTAX" },
+  '{':   { e:"Opens a dictionary (key:value pairs) or a set (unique values)",                    m:"{ = open the record book", cat:"SYNTAX" },
+  '}':   { e:"Closes the dictionary or set opened by '{'",                                       m:"} = close the record book", cat:"SYNTAX" },
+  ':':   { e:"Signals that an indented block of code follows — used after if, for, def, class", m:": = 'here's what follows'", cat:"SYNTAX" },
+  ',':   { e:"Separates items — in lists, function arguments, or multiple assignment targets",   m:", = and one more", cat:"SYNTAX" },
+  '.':   { e:"Accesses an attribute or method belonging to an object — 'reach inside for'",     m:". = reach inside for…", cat:"SYNTAX" },
+};
+
+// Visual rules: semantic type → { color, bold, italic }
+const VR = {
+  loop:         { c:'#ff8c42', b:true,  i:false },
+  loop_var:     { c:'#ff8c42', b:false, i:true  },
+  condition:    { c:'#f87171', b:true,  i:false },
+  function_kw:  { c:'#c084fc', b:true,  i:false },
+  function_name:{ c:'#c084fc', b:true,  i:false },
+  function_call:{ c:'#c084fc', b:false, i:false },
+  class_kw:     { c:'#2dd4bf', b:true,  i:false },
+  class_name:   { c:'#2dd4bf', b:true,  i:false },
+  output:       { c:'#4ade80', b:true,  i:false },
+  builtin:      { c:'#a78bfa', b:false, i:false },
+  value:        { c:'#fbbf24', b:false, i:true  },
+  string:       { c:'#fbbf24', b:false, i:true  },
+  number:       { c:'#fbbf24', b:false, i:true  },
+  structure:    { c:'#2dd4bf', b:false, i:false },
+  variable:     { c:'#7cb3ff', b:false, i:true  },
+  operator:     { c:'#9da8cc', b:false, i:false },
+  syntax:       { c:'#464d6a', b:false, i:false },
+  comment:      { c:'#2e3a5a', b:false, i:true  },
+  whitespace:   { c:'inherit', b:false, i:false },
+};
+
+// Category → color for tooltip type label
+const CAT_COLOR = {
+  LOOP:'#ff8c42', CONDITION:'#f87171', FUNCTION:'#c084fc',
+  OUTPUT:'#4ade80', VALUE:'#fbbf24', VARIABLE:'#7cb3ff',
+  STRUCTURE:'#2dd4bf', SYNTAX:'#464d6a', OPERATOR:'#9da8cc',
+  COMMENT:'#2e3a5a',
+};
+
+// ══════════════════════════════════════════════
+//  TOKENIZER
+// ══════════════════════════════════════════════
+
+function tokenize(code) {
+  const toks = [];
+  let pos = 0, line = 1, col = 0;
+
+  const PATS = [
+    { t:'comment',    r:/^#[^\n]*/ },
+    { t:'string',     r:/^("""[\s\S]*?"""|'''[\s\S]*?'''|"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/ },
+    { t:'number',     r:/^\d+\.?\d*(?:[eE][+-]?\d+)?/ },
+    { t:'newline',    r:/^\n/ },
+    { t:'whitespace', r:/^[ \t]+/ },
+    { t:'operator',   r:/^(==|!=|<=|>=|\*\*|\/\/|->|\+=|-=|\*=|\/=|<<|>>|[+\-*/%<>=!&|^~@])/ },
+    { t:'punctuation',r:/^[()\[\]{},.:;]/ },
+    { t:'identifier', r:/^[a-zA-Z_]\w*/ },
+    { t:'unknown',    r:/^./ },
+  ];
+
+  while (pos < code.length) {
+    const slice = code.slice(pos);
+    let hit = false;
+    for (const { t, r } of PATS) {
+      const m = slice.match(r);
+      if (m) {
+        const val = m[0];
+        toks.push({ v:val, t, line, col });
+        for (const ch of val) {
+          if (ch === '\n') { line++; col = 0; }
+          else { col++; }
+        }
+        pos += val.length;
+        hit = true;
+        break;
+      }
+    }
+    if (!hit) pos++;
+  }
+  return toks;
+}
+
+// ══════════════════════════════════════════════
+//  CONTEXT ANNOTATOR
+// ══════════════════════════════════════════════
+
+function annotate(toks) {
+  // Build significant-token list (no ws/newlines) for look-around
+  const sig = toks.filter(tk => tk.t !== 'whitespace' && tk.t !== 'newline');
+  const idx = new Map(sig.map((tk, i) => [tk, i]));
+
+  const prev = tk => { const i = idx.get(tk); return i > 0 ? sig[i-1] : null; };
+  const next = tk => { const i = idx.get(tk); return i != null ? sig[i+1] : null; };
+
+  for (const tk of toks) {
+    const { v, t } = tk;
+
+    // ── trivial types
+    if (t === 'whitespace' || t === 'newline') { tk.sem = 'whitespace'; continue; }
+
+    if (t === 'comment') {
+      tk.sem = 'comment';
+      tk.e = "A comment — Python ignores everything after # on this line";
+      tk.m = "# = a note to yourself";
+      tk.cat = "COMMENT";
+      continue;
+    }
+
+    if (t === 'string') {
+      tk.sem = 'string';
+      tk.e = "A string literal — text stored exactly as written between the quotes";
+      tk.m = "String = text in a box";
+      tk.cat = "VALUE";
+      continue;
+    }
+
+    if (t === 'number') {
+      tk.sem = 'number';
+      tk.e = `A numeric literal with value ${v} — Python can use this in calculations`;
+      tk.m = "Number = a value to calculate with";
+      tk.cat = "VALUE";
+      continue;
+    }
+
+    if (t === 'operator') {
+      tk.sem = 'operator';
+      const d = TD[v];
+      tk.e = d?.e || `The ${v} operator`;
+      tk.m = d?.m || v;
+      tk.cat = d?.cat || "OPERATOR";
+      continue;
+    }
+
+    if (t === 'punctuation') {
+      tk.sem = 'syntax';
+      const d = TD[v];
+      tk.e = d?.e || '';
+      tk.m = d?.m || '';
+      tk.cat = d?.cat || "SYNTAX";
+      continue;
+    }
+
+    if (t === 'unknown') {
+      tk.sem = 'syntax';
+      tk.e = ''; tk.m = ''; tk.cat = 'SYNTAX';
+      continue;
+    }
+
+    // ── identifiers
+    if (t === 'identifier') {
+      const pv = prev(tk), nx = next(tk);
+      const d = TD[v];
+
+      // Keywords
+      if (KW.has(v)) {
+        const data = d || {};
+        tk.e = data.e || `The ${v} keyword`;
+        tk.m = data.m || v;
+        tk.cat = data.cat || 'KEYWORD';
+
+        if (['for','while','in','break','continue'].includes(v)) tk.sem = 'loop';
+        else if (['if','elif','else','not','and','or','is','assert'].includes(v)) tk.sem = 'condition';
+        else if (['def','return','lambda','yield'].includes(v)) tk.sem = 'function_kw';
+        else if (v === 'class') tk.sem = 'class_kw';
+        else if (['True','False','None'].includes(v)) tk.sem = 'value';
+        else tk.sem = 'structure';
+        continue;
+      }
+
+      // Function name (after def)
+      if (pv?.v === 'def') {
+        tk.sem = 'function_name';
+        tk.e = `The name of this function. Call it later by writing ${v}(…)`;
+        tk.m = `${v}() = a named ability`;
+        tk.cat = 'FUNCTION';
+        continue;
+      }
+
+      // Class name (after class)
+      if (pv?.v === 'class') {
+        tk.sem = 'class_name';
+        tk.e = `The class name — a blueprint for creating ${v} objects`;
+        tk.m = `${v} = blueprint name`;
+        tk.cat = 'STRUCTURE';
+        continue;
+      }
+
+      // Loop variable (right after for, before in)
+      if (pv?.v === 'for') {
+        tk.sem = 'loop_var';
+        tk.e = `A loop variable — takes on each value from the collection, one at a time`;
+        tk.m = `${v} = each item, one turn at a time`;
+        tk.cat = 'LOOP';
+        continue;
+      }
+
+      // print specifically = OUTPUT
+      if (v === 'print' && nx?.v === '(') {
+        tk.sem = 'output';
+        tk.e = TD['print'].e;
+        tk.m = TD['print'].m;
+        tk.cat = 'OUTPUT';
+        continue;
+      }
+
+      // Other builtins
+      if (BUILTINS.has(v) && nx?.v === '(') {
+        tk.sem = 'builtin';
+        tk.e = d?.e || `The built-in Python function ${v}()`;
+        tk.m = d?.m || `${v}() = built-in tool`;
+        tk.cat = d?.cat || 'FUNCTION';
+        continue;
+      }
+
+      // Any identifier followed by ( = function call
+      if (nx?.v === '(') {
+        tk.sem = 'function_call';
+        tk.e = `Calling the ${v} function — runs its code and returns a result`;
+        tk.m = `${v}() = activate this ability`;
+        tk.cat = 'FUNCTION';
+        continue;
+      }
+
+      // Default: variable
+      tk.sem = 'variable';
+      tk.e = `A variable named "${v}" — a labeled box holding a value you can use later`;
+      tk.m = `${v} = a labeled storage box`;
+      tk.cat = 'VARIABLE';
+    }
+  }
+
+  return toks;
+}
+
+// ══════════════════════════════════════════════
+//  RENDERER
+// ══════════════════════════════════════════════
+
+function renderToken(tk) {
+  if (tk.t === 'newline') return document.createTextNode('\n');
+  if (tk.t === 'whitespace') return document.createTextNode(tk.v);
+
+  const rule = VR[tk.sem] || VR.whitespace;
+  const span = document.createElement('span');
+  span.textContent = tk.v;
+  span.className = 'tok';
+  span.style.color = rule.c;
+  if (rule.b) span.style.fontWeight = '700';
+  if (rule.i) span.style.fontStyle = 'italic';
+
+  if (tk.e) {
+    span.dataset.tip = '1';
+    span.dataset.e = tk.e;
+    span.dataset.m = tk.m || '';
+    span.dataset.cat = tk.cat || '';
+  }
+
+  return span;
+}
+
+let tokenCount = 0, kwCount = 0;
+
+function render(code) {
+  const toks = annotate(tokenize(code));
+  const out = document.getElementById('code-output');
+  out.innerHTML = '';
+
+  const frag = document.createDocumentFragment();
+  tokenCount = 0; kwCount = 0;
+
+  for (const tk of toks) {
+    if (tk.t !== 'whitespace' && tk.t !== 'newline' && tk.t !== 'unknown') tokenCount++;
+    if (KW.has(tk.v)) kwCount++;
+    frag.appendChild(renderToken(tk));
+  }
+
+  out.appendChild(frag);
+
+  // Stats
+  const lines = code.split('\n').length;
+  document.getElementById('stat-tokens').textContent = tokenCount;
+  document.getElementById('stat-lines').textContent = lines;
+  document.getElementById('stat-kw').textContent = kwCount;
+}
+
+// ══════════════════════════════════════════════
+//  TOOLTIP
+// ══════════════════════════════════════════════
+
+const tip     = document.getElementById('tooltip');
+const tipCat  = document.getElementById('tip-cat');
+const tipExp  = document.getElementById('tip-exp');
+const tipMnem = document.getElementById('tip-mnem');
+let tipOn = false;
+
+function posTip(x, y) {
+  const W = window.innerWidth, H = window.innerHeight;
+  const tw = tip.offsetWidth || 290, th = tip.offsetHeight || 110;
+  const pad = 18;
+  let l = x + pad, t = y + pad;
+  if (l + tw > W - 8) l = x - tw - pad;
+  if (t + th > H - 8) t = y - th - pad;
+  tip.style.left = l + 'px';
+  tip.style.top  = t + 'px';
+}
+
+document.addEventListener('mousemove', e => { if (tipOn) posTip(e.clientX, e.clientY); });
+
+document.addEventListener('mouseover', e => {
+  const el = e.target;
+  if (el.classList.contains('tok') && el.dataset.tip) {
+    tipOn = true;
+    const cat = el.dataset.cat || '';
+    tipCat.textContent = cat;
+    tipCat.style.color = CAT_COLOR[cat] || '#6b7099';
+    tipExp.textContent = el.dataset.e || '';
+    tipMnem.textContent = el.dataset.m || '';
+    tip.style.display = 'block';
+    posTip(e.clientX, e.clientY);
+  } else {
+    tipOn = false;
+    tip.style.display = 'none';
+  }
+});
+
+document.addEventListener('mouseout', e => {
+  if (e.target.classList.contains('tok')) {
+    tipOn = false;
+    tip.style.display = 'none';
+  }
+});
+
+// ══════════════════════════════════════════════
+//  LINE NUMBERS
+// ══════════════════════════════════════════════
+
+function updateLineNums(code) {
+  const n = (code.match(/\n/g) || []).length + 1;
+  const nums = document.getElementById('line-nums');
+  let s = '';
+  for (let i = 1; i <= n; i++) s += i + '\n';
+  nums.textContent = s;
+}
+
+// Sync scroll
+const codeInput = document.getElementById('code-input');
+const lineNums  = document.getElementById('line-nums');
+codeInput.addEventListener('scroll', () => {
+  lineNums.style.marginTop = (-codeInput.scrollTop) + 'px';
+});
+
+// ══════════════════════════════════════════════
+//  INPUT HANDLER
+// ══════════════════════════════════════════════
+
+codeInput.addEventListener('input', () => {
+  const code = codeInput.value;
+  updateLineNums(code);
+  if (code.trim()) {
+    render(code);
+  } else {
+    document.getElementById('code-output').innerHTML =
+      '<div class="empty-state"><div class="empty-icon">⟡</div><div class="empty-text">Paste code on the left</div></div>';
+    document.getElementById('stat-tokens').textContent = '—';
+    document.getElementById('stat-lines').textContent = '—';
+    document.getElementById('stat-kw').textContent = '—';
+  }
+});
+
+// Tab key
+codeInput.addEventListener('keydown', e => {
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    const s = codeInput.selectionStart, end = codeInput.selectionEnd;
+    codeInput.value = codeInput.value.slice(0, s) + '    ' + codeInput.value.slice(end);
+    codeInput.selectionStart = codeInput.selectionEnd = s + 4;
+    codeInput.dispatchEvent(new Event('input'));
+  }
+});
+
+// File upload
+document.getElementById('file-input').addEventListener('change', e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    codeInput.value = ev.target.result;
+    codeInput.dispatchEvent(new Event('input'));
+  };
+  reader.readAsText(f);
+  e.target.value = '';
+});
+
+// Clear
+document.getElementById('btn-clear').addEventListener('click', () => {
+  codeInput.value = '';
+  codeInput.dispatchEvent(new Event('input'));
+  codeInput.focus();
+});
+
+// ══════════════════════════════════════════════
+//  SAMPLE CODE
+// ══════════════════════════════════════════════
+
+const SAMPLE = `# Count even numbers in a list
+numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+def count_evens(nums):
+    count = 0
+    for num in nums:
+        if num % 2 == 0:
+            count += 1
+    return count
+
+result = count_evens(numbers)
+print("Even count:", result)
+
+# Bonus: FizzBuzz for the first 15
+for i in range(1, 16):
+    if i % 15 == 0:
+        print("FizzBuzz")
+    elif i % 3 == 0:
+        print("Fizz")
+    elif i % 5 == 0:
+        print("Buzz")
+    else:
+        print(i)`;
+
+codeInput.value = SAMPLE;
+updateLineNums(SAMPLE);
+render(SAMPLE);
+</script>
+</body>
+</html>
