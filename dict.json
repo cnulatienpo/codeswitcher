@@ -1,0 +1,222 @@
+{
+  "tokens": {
+    "=": ["name on the left, stuff on the right\nput it in the box, now it is in sight"],
+    "==": ["double equals, time to compare\nsame or not, we check it there"],
+    "!=": ["not the same, that is the claim\nif they differ, that is the game"],
+    ">": ["bigger than, left beats right\nlarger wins this little fight"],
+    "<": ["smaller than, left is less\nthat is the side that wins the test"],
+    ">=": ["greater or equal, win or tie\nleft side passes, do not ask why"],
+    "<=": ["less or equal, small or same\nleft side passes in the game"],
+    "(": ["open the door, take a look inside"],
+    ")": ["close it up, nothing left to hide"],
+    "[": ["open a box, hold a few\nmany things inside for you"],
+    "]": ["close the box, we are done with you"],
+    "{": ["open a map, keys and things\npairs of values that it brings"],
+    "}": ["close the map, that is the end\nno more pairs to recommend"],
+    ":": ["colon says do this next\nget ready now, here comes the text"],
+    ",": ["comma says not done yet\nthere is more to come, do not forget"],
+    ".": ["dot means go inside the thing\nreach its parts and what they bring"],
+    "#": ["hashtag note, the code cannot see\nthis is just a note for me"],
+    "indent": ["step to the right, you are inside\nstep back left, now you are outside"]
+  },
+  "variables": {
+    "general": ["name the box, drop it in\nthat is how all your values begin"],
+    "number": ["just a count, plain and true\none, two, three, it is up to you"],
+    "float": ["numbers with dots, split in two\nwhole and part both come through"],
+    "string": ["quotes mean words, not math to do\njust some text we pass right through"],
+    "boolean": ["true or false, yes or no\nthat is the way decisions go"],
+    "loop_variable": ["little box that changes fast\nnew number each time we pass"]
+  },
+  "functions": {
+    "print": ["what is inside, comes outside\nsay it to the screen with pride"],
+    "def": ["build a machine, give it a name\nrun it later, same each time"],
+    "call": ["call the machine, press go\nwatch it do the thing you know"],
+    "return": ["send it back, do not keep it\ngive the answer, now we are through"],
+    "input": ["ask the user, wait and see\nwhat they type comes back to me"],
+    "len": ["count them up, how many there\nlength is what we want to share"],
+    "type": ["what is this, what is its kind\ntell me what this thing is defined"]
+  },
+  "loops": {
+    "for": ["say for once, do it more\nsame thing again, like before"],
+    "in": ["pick from inside, take your turn\ngrab each piece as we return"],
+    "range": ["start at zero, climb the ladder\nstop before n, not a step after"],
+    "while": ["while it is true, keep the ride\nstop when false, step outside"],
+    "break": ["stop it now, we are done for real\njump right out, that is the deal"],
+    "continue": ["skip this turn, do not stay long\njump ahead and move along"]
+  },
+  "conditions": {
+    "if": ["if it is true, walk on through\nif it is not, we are done with you"],
+    "else": ["if that failed, here is the deal\ndo this part instead for real"],
+    "elif": ["try again, one more test\nmaybe this one works out best"]
+  },
+  "lists": {
+    "brackets": ["open a box that holds a few\nmany things inside for you"],
+    "items": ["one by one, in a row\nthat is how lists begin to grow"],
+    "index": ["start at zero, that is the key\nfirst thing lives at zero, see"],
+    "append": ["add one more onto the end\nmake the list a growing friend"],
+    "pop": ["take one off, from the end\nshorter list is what we send"]
+  },
+  "dictionaries": {
+    "general": ["keys and values, pair them tight\nlook them up to get it right"],
+    "key_access": ["use the key to find the prize\nopen the box and see what lies"]
+  },
+  "operators": {
+    "+": ["add it up, combine the pile"],
+    "-": ["take away, shrink it down"],
+    "*": ["times it out, grow it wide"],
+    "/": ["split it up, share the ride"],
+    "%": ["what remains after divide\nthat is the part we keep inside"],
+    "**": ["power up, raise it high\nmultiply again and fly"],
+    "and": ["both must pass, yes and yes"],
+    "or": ["one is enough, pass the test"],
+    "not": ["flip it around, true to false"]
+  },
+  "conversion": {
+    "int": ["turn to number, drop the text"],
+    "str": ["turn to words, show it next"],
+    "float": ["add a dot, make it split\nnow it is not a whole"]
+  },
+  "imports": {
+    "import": ["bring it in from far away\nuse it here inside your play"],
+    "from": ["pick a part from something big\njust one piece is what you dig"],
+    "as": ["give it a new name to use\nshort or simple, you can choose"]
+  },
+  "patterns_core": {
+    "for_loop_full": ["start at zero, climb the ladder\nstop before the final number\neach step forward, say the name\ncount it out again again"],
+    "while_loop_full": ["keep on going while it is true\ncheck each time what you should do\nonce it fails, you step away\nloop is done, no more to say"],
+    "if_else_full": ["check the rule, open the door\nif it fails, try one more\nif none work, last one stays\nthat is the path the program plays"],
+    "assignment_full": ["name the box, fill it right\nnow that value is locked in tight"],
+    "print_full": ["take a thing and let it show\nsend it out so we can know"]
+  },
+  "advanced_tokens": {
+    "try": ["try it first, take the shot\nif it works, great, if not we have got"],
+    "except": ["catch the fall, do not let it crash\nhandle errors, skip the smash"],
+    "finally": ["no matter what, this will run\nlast step here when all is done"],
+    "class": ["make a blueprint, shape the thing\nmany copies this can bring"],
+    "self": ["this one here, the current one\ntalking about itself when done"],
+    "yield": ["give one piece, then pause the flow\ncome back later, start it slow"],
+    "lambda": ["tiny function, quick and light\none-line trick, no name in sight"]
+  },
+  "comprehensions": {
+    "list_comprehension": ["build a list, quick and tight\ntake what fits, leave what is not right"],
+    "list_comprehension_if": ["check each piece as it goes by\nkeep the ones that pass the eye"],
+    "nested_comprehension": ["loop inside, loop again\nbuild it up from nested runs"]
+  },
+  "nested_patterns": {
+    "nested_for_loops": ["loop the outer, step it through\ninside that, another loop to do"],
+    "nested_if": ["check one rule, then check again\nlayered choices now begin"],
+    "loop_inside_if": ["if it passes, start the spin\nloop begins once you are in"],
+    "if_inside_loop": ["each step checks before it goes\nsome get through, some it slows"]
+  },
+  "functions_advanced": {
+    "params_multiple": ["many inputs, lined in place\nvalues come to fill each space"],
+    "default_params": ["if you do not give one, that is okay\nthis default will save the day"],
+    "return_expression": ["do the work, do not delay\nsend the answer back this way"],
+    "nested_function": ["function inside, hidden tight\nonly used in here, not outside"]
+  },
+  "methods_and_chains": {
+    "method_call": ["reach inside, use its skill\ncall its power, do its will"],
+    "method_chain": ["one step done, then one more\nchain them up to do the chore"]
+  },
+  "dictionaries_advanced": {
+    "dict_access": ["use the key to find the prize\nopen the box and see what lies"],
+    "dict_add": ["new key, new value pair\nadd it in, now it is there"],
+    "dict_loop": ["key and value, walk them through\none by one, like lists do"]
+  },
+  "error_handling_patterns": {
+    "try_except_full": ["try it first, take the chance\nif it fails, we change the dance"],
+    "try_except_else": ["if no error came to play\nthis part runs the normal way"],
+    "try_except_finally": ["no matter what, this will land\nfinal step, just as planned"]
+  },
+  "classes": {
+    "class_definition": ["make a blueprint, shape the thing\nmany copies this can bring"],
+    "init": ["when it is made, this runs first\nsets it up before it bursts"],
+    "method": ["a function tied to what you made\nworks with data that it saved"],
+    "self_usage": ["this object here, the one in play\nholds its data all the way"]
+  },
+  "file_handling": {
+    "open": ["open the file, take a peek\nread or write what you seek"],
+    "read": ["pull it in, from file to you\nnow the data comes into view"],
+    "write": ["send it out, from you to file\nsave it there for quite a while"],
+    "with": ["open it safe, close it right\nhandled for you, neat and tight"]
+  },
+  "patterns_advanced": {
+    "list_comprehension_full": ["take each thing, test it fast\nbuild a list from what has passed"],
+    "nested_loop_full": ["outer moves, inner runs\nmany passes, lots gets done"],
+    "function_with_return_full": ["take some in, do the deed\nsend it back, that is what we need"],
+    "class_full": ["build a mold, make a kind\nobjects follow that design"],
+    "file_read_full": ["open, read, then close the door\ndata is yours forevermore"]
+  },
+  "advanced_structures": {
+    "tuple": ["packed together, fixed in place\nordered items, locked in space"],
+    "set": ["no repeats, just one each\nunique items in your reach"],
+    "set_add": ["add it in, if it is not there\nsets keep things unique and fair"],
+    "tuple_unpack": ["split it out, piece by piece\none big thing becomes many pieces"]
+  },
+  "iteration_patterns": {
+    "enumerate": ["count and item, side by side\nindex tells where things reside"],
+    "zip": ["walk together, pair the two\nfirst with first all the way through"],
+    "reversed": ["start from end, go back instead\nwalk it backwards, just as said"],
+    "sorted": ["put in order, small to tall\nline them up so sense can call"]
+  },
+  "string_methods": {
+    "strip": ["trim the edges, cut the ends\nclean the start and finish, friends"],
+    "lower": ["make it small, all the way\nlowercase is here to stay"],
+    "upper": ["make it loud, letters shout\nuppercase is what it is about"],
+    "replace": ["find a piece, swap it out\nchange the text, no doubt about"],
+    "split": ["break apart into a list\ncut by marks that you insist"],
+    "join": ["bring together, piece by piece\nmerge the list into one piece"]
+  },
+  "numeric_patterns": {
+    "round": ["near the number, make it neat\nround it off to closest seat"],
+    "abs": ["drop the sign, keep the size\ndistance only, that is the prize"],
+    "min": ["find the smallest in the group\nlowest one inside the loop"],
+    "max": ["find the biggest, take the crown\nlargest value standing tall"],
+    "sum": ["add them all, total score\ncombine the values into more"]
+  },
+  "flow_control": {
+    "pass": ["do nothing here, just a mark\nplaceholder sitting in the dark"],
+    "global": ["reach outside the local space\nuse the name from a wider place"],
+    "nonlocal": ["not global wide, but not in here\nreach the parent that is near"]
+  },
+  "comparisons_extended": {
+    "is": ["same thing exactly, not just alike\nsame object, not just type"],
+    "is_not": ["not the same, not that one\npointing elsewhere, different done"],
+    "in_operator": ["is it inside, does it belong\ncheck the group, right or wrong"],
+    "not_in": ["not inside, nowhere found\nmissing from this list or ground"]
+  },
+  "slicing": {
+    "slice": ["take a part, not the whole\ncut a section from the roll"],
+    "slice_start_stop": ["start here, stop before\ncut the middle, leave the shore"],
+    "slice_step": ["skip along, not every one\nstep by step till you are done"]
+  },
+  "advanced_functions": {
+    "args": ["many inputs, gathered tight\nall packed in from left to right"],
+    "kwargs": ["named inputs, key and value\nmany choices just for you"],
+    "decorator": ["wrap a function, add some flair\nchange its behavior with extra care"]
+  },
+  "generators": {
+    "generator_expression": ["like a list but slow and light\ngive one piece, not all in sight"],
+    "yield_full": ["give one now, then wait your turn\ncome back later, we return"]
+  },
+  "comprehension_extended": {
+    "dict_comprehension": ["build a map from what you see\nkeys and values built quickly"],
+    "set_comprehension": ["build a set, keep it neat\nno repeats allowed to meet"]
+  },
+  "exception_details": {
+    "except_specific": ["catch this kind, not all the rest\nhandle this, ignore the test"],
+    "raise": ["throw an error, stop the show\nsomething is wrong, we need to know"]
+  },
+  "modules_and_usage": {
+    "module_call": ["reach the tool from where it lives\nuse the power that it gives"],
+    "alias_use": ["short new name, easier say\nsame thing works a simpler way"]
+  },
+  "patterns_extended": {
+    "enumerate_loop_full": ["count and value, walk in line\nindex and item both align"],
+    "zip_loop_full": ["pair them up and walk together\nstep by step through any weather"],
+    "slice_full": ["cut a piece from start to end\njust a part, not the blend"],
+    "generator_full": ["one at a time, do not rush the flow\nslowly give what we should know"],
+    "decorator_full": ["wrap it up before it runs\nadd behavior, extra fun"]
+  },
+  "fallback": ["this piece here plays a role\nwe will learn its part as we go"]
+}

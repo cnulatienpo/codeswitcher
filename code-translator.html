@@ -301,12 +301,13 @@
     .tip-mnem {
       font-family: 'Fira Code', monospace;
       font-size: 11px;
-      color: var(--accent);
+      color: #8ea5d8;
       padding: 5px 9px;
       background: rgba(91,156,246,0.07);
       border-left: 2px solid var(--accent);
       border-radius: 0 4px 4px 0;
       line-height: 1.4;
+      white-space: pre-line;
     }
 
     /* ── STATUS BAR ──────────────────────────── */
@@ -437,111 +438,43 @@ const BUILTINS = new Set([
   'vars','dir','callable','iter','next','super','object','help'
 ]);
 
-// Token annotation data: explanation + mnemonic + category
-const TD = {
-  // ── LOOP KEYWORDS
-  'for':       { e:"Repeats a block once for each item in a collection, from top to bottom",              m:"FOR each item — do this", cat:"LOOP" },
-  'while':     { e:"Keeps running the block below as long as the condition stays true",                    m:"WHILE this is true — keep going", cat:"LOOP" },
-  'in':        { e:"Inside a for-loop, tells Python where to pull each item from",                        m:"Pull each item IN from here", cat:"LOOP" },
-  'break':     { e:"Immediately exits the current loop, skipping any remaining iterations",               m:"BREAK out — stop the loop now", cat:"LOOP" },
-  'continue':  { e:"Skips the rest of this loop pass and jumps straight to the next iteration",           m:"CONTINUE to the next one", cat:"LOOP" },
-  // ── CONDITION KEYWORDS
-  'if':        { e:"Only runs the block below when the condition evaluates to True",                       m:"IF this is true — do it", cat:"CONDITION" },
-  'elif':      { e:"Another condition to try when the previous if/elif was False",                        m:"ELSE IF the first didn't match — try this", cat:"CONDITION" },
-  'else':      { e:"Runs when every if and elif above it was False — the fallback",                       m:"In every OTHER case — do this", cat:"CONDITION" },
-  'not':       { e:"Flips a boolean — True becomes False, False becomes True",                            m:"NOT = flip it around", cat:"CONDITION" },
-  'and':       { e:"Both sides must be True for the whole expression to be True",                         m:"AND = both sides must win", cat:"CONDITION" },
-  'or':        { e:"At least one side must be True for the expression to pass",                           m:"OR = just one needs to work", cat:"CONDITION" },
-  'is':        { e:"Checks if two variables point to the exact same object in memory (not just equal)",   m:"IS = literally the same thing?", cat:"CONDITION" },
-  'assert':    { e:"Checks that a condition is True — crashes with AssertionError if not",                m:"ASSERT = this must be true, I promise", cat:"CONDITION" },
-  // ── FUNCTION KEYWORDS
-  'def':       { e:"Defines a new named function — a reusable block you can call later",                  m:"DEFine a new ability", cat:"FUNCTION" },
-  'return':    { e:"Sends a value back out of the function to whoever called it, then stops",             m:"RETURN this result to the caller", cat:"FUNCTION" },
-  'lambda':    { e:"Creates a small anonymous function in a single expression — no name needed",          m:"LAMBDA = a one-liner function", cat:"FUNCTION" },
-  'yield':     { e:"Returns a value from a generator and pauses — resumes on the next call",             m:"YIELD = give one, pause, resume", cat:"FUNCTION" },
-  // ── STRUCTURE KEYWORDS
-  'class':     { e:"Defines a blueprint for creating objects — groups data and behavior together",        m:"CLASS = blueprint for objects", cat:"STRUCTURE" },
-  'with':      { e:"Opens a context like a file, runs the block, then closes it automatically",           m:"WITH this open — do your work", cat:"STRUCTURE" },
-  'as':        { e:"Gives an imported module or context manager a shorter alias to use here",             m:"AS = call it this instead", cat:"STRUCTURE" },
-  'import':    { e:"Brings in a module — a file full of functions and tools",                             m:"IMPORT = grab tools from another toolbox", cat:"STRUCTURE" },
-  'from':      { e:"Specifies which module to import something from",                                     m:"FROM this toolbox — grab...", cat:"STRUCTURE" },
-  'try':       { e:"Attempts to run the block — if an error occurs, 'except' catches it",                m:"TRY this — I hope it works", cat:"STRUCTURE" },
-  'except':    { e:"Catches and handles errors that happened in the 'try' block above",                   m:"EXCEPT when it breaks — catch it", cat:"STRUCTURE" },
-  'finally':   { e:"Always runs after try/except, whether it succeeded or raised an error",              m:"FINALLY — runs no matter what", cat:"STRUCTURE" },
-  'raise':     { e:"Throws an exception intentionally — stops execution with an error message",           m:"RAISE the alarm — something went wrong", cat:"STRUCTURE" },
-  'pass':      { e:"Does absolutely nothing — a placeholder so an empty block stays valid Python",        m:"PASS = skip this for now", cat:"STRUCTURE" },
-  'global':    { e:"Declares that a variable refers to the one in the outermost (global) scope",         m:"GLOBAL = use the outer one", cat:"STRUCTURE" },
-  'nonlocal':  { e:"Like global but for the nearest enclosing function scope instead",                    m:"NONLOCAL = use the enclosing one", cat:"STRUCTURE" },
-  'del':       { e:"Removes a variable name or deletes an item from a list or dictionary",               m:"DEL = delete this", cat:"STRUCTURE" },
-  'async':     { e:"Marks a function as asynchronous — it can pause without blocking everything else",   m:"ASYNC = runs without waiting", cat:"STRUCTURE" },
-  'await':     { e:"Pauses an async function here until the awaited thing finishes",                      m:"AWAIT = wait for this, then continue", cat:"STRUCTURE" },
-  // ── VALUE LITERALS
-  'True':      { e:"The boolean value for yes, correct, or on — one of only two booleans",               m:"TRUE = yes, it's on", cat:"VALUE" },
-  'False':     { e:"The boolean value for no, incorrect, or off — the other boolean",                    m:"FALSE = no, it's off", cat:"VALUE" },
-  'None':      { e:"Represents the complete absence of a value — not zero, not empty, just nothing",     m:"NONE = empty hands", cat:"VALUE" },
-  // ── BUILTINS
-  'print':     { e:"Displays values on the screen — your main window into what the code is doing",       m:"PRINT = shout it out loud", cat:"OUTPUT" },
-  'len':       { e:"Returns the number of items in a string, list, tuple, or other collection",          m:"LEN = how long is this?", cat:"FUNCTION" },
-  'range':     { e:"Generates a sequence of integers — range(5) gives 0, 1, 2, 3, 4",                   m:"RANGE = count from here to there", cat:"FUNCTION" },
-  'input':     { e:"Pauses execution and asks the user to type something — returns their text",           m:"INPUT = ask the user", cat:"FUNCTION" },
-  'int':       { e:"Converts a value to a whole number, dropping any decimal part",                      m:"INT = make it a whole number", cat:"FUNCTION" },
-  'str':       { e:"Converts any value to its text representation",                                       m:"STR = turn it into text", cat:"FUNCTION" },
-  'float':     { e:"Converts a value to a decimal (floating-point) number",                              m:"FLOAT = make it a decimal", cat:"FUNCTION" },
-  'list':      { e:"Converts a collection into a mutable list you can add to or change",                 m:"LIST = make it a list", cat:"FUNCTION" },
-  'dict':      { e:"Creates a dictionary — a lookup table of key → value pairs",                         m:"DICT = a lookup table", cat:"FUNCTION" },
-  'set':       { e:"Creates a set — a collection with no duplicates, fast membership checks",            m:"SET = a bag of unique things", cat:"FUNCTION" },
-  'tuple':     { e:"Creates a tuple — an immutable (locked) list you cannot change after creation",      m:"TUPLE = a locked list", cat:"FUNCTION" },
-  'bool':      { e:"Converts a value to True or False based on whether it's 'truthy' or 'falsy'",        m:"BOOL = is it truthy?", cat:"FUNCTION" },
-  'type':      { e:"Returns the type/class of a value — int, str, list, etc.",                           m:"TYPE = what kind of thing is this?", cat:"FUNCTION" },
-  'enumerate': { e:"Adds a counter to each item as you loop — yields (index, value) pairs",              m:"ENUMERATE = number each item", cat:"FUNCTION" },
-  'zip':       { e:"Pairs items from two or more lists — (a[0],b[0]), (a[1],b[1])...",                  m:"ZIP = stitch lists together", cat:"FUNCTION" },
-  'map':       { e:"Applies a function to every item in a collection — returns an iterator",             m:"MAP = do this to each one", cat:"FUNCTION" },
-  'filter':    { e:"Keeps only items that pass a test — returns an iterator of the survivors",           m:"FILTER = only keep what passes", cat:"FUNCTION" },
-  'sorted':    { e:"Returns a new sorted list — does not change the original",                           m:"SORTED = put them in order", cat:"FUNCTION" },
-  'reversed':  { e:"Returns an iterator going through the collection in reverse order",                  m:"REVERSED = flip the order", cat:"FUNCTION" },
-  'sum':       { e:"Adds all numbers in a collection together — returns the total",                      m:"SUM = add them all up", cat:"FUNCTION" },
-  'max':       { e:"Returns the largest value from a collection or from multiple arguments",             m:"MAX = find the biggest", cat:"FUNCTION" },
-  'min':       { e:"Returns the smallest value from a collection or from multiple arguments",            m:"MIN = find the smallest", cat:"FUNCTION" },
-  'abs':       { e:"Returns the absolute value — strips the minus sign, always returns positive",        m:"ABS = always positive", cat:"FUNCTION" },
-  'round':     { e:"Rounds a number to the nearest whole number, or to N decimal places",               m:"ROUND = nearest whole", cat:"FUNCTION" },
-  'isinstance':{ e:"Checks if a value is an instance of a given class or type",                         m:"isinstance = is it this type?", cat:"FUNCTION" },
-  'open':      { e:"Opens a file for reading, writing, or both — use with 'with' to auto-close",        m:"OPEN = unlock this file", cat:"FUNCTION" },
-  'any':       { e:"Returns True if at least one item in the collection is truthy",                      m:"ANY = does even one pass?", cat:"FUNCTION" },
-  'all':       { e:"Returns True only if every single item in the collection is truthy",                 m:"ALL = do they all pass?", cat:"FUNCTION" },
-  'repr':      { e:"Returns a developer-readable string representation of an object",                   m:"REPR = show me the internals", cat:"FUNCTION" },
-  'hasattr':   { e:"Checks if an object has an attribute with a given name",                             m:"HASATTR = does it have this?", cat:"FUNCTION" },
-  'getattr':   { e:"Gets the value of an attribute from an object by name",                              m:"GETATTR = fetch this from it", cat:"FUNCTION" },
-  'callable':  { e:"Returns True if the object can be called like a function",                           m:"CALLABLE = can I call it?", cat:"FUNCTION" },
-  // ── OPERATORS
-  '=':   { e:"Assigns a value to a variable name — 'store this and remember it as'",              m:"= means 'remember this as'", cat:"OPERATOR" },
-  '==':  { e:"Checks equality — returns True if both sides have the same value",                   m:"== means 'are these the same?'", cat:"OPERATOR" },
-  '!=':  { e:"Checks inequality — returns True if the sides have different values",                m:"!= means 'are these different?'", cat:"OPERATOR" },
-  '<':   { e:"Returns True if the left value is strictly smaller than the right",                  m:"< points to the smaller side", cat:"OPERATOR" },
-  '>':   { e:"Returns True if the left value is strictly larger than the right",                   m:"> points away from the smaller", cat:"OPERATOR" },
-  '<=':  { e:"Returns True if left is smaller than or exactly equal to right",                    m:"<= smaller or matching", cat:"OPERATOR" },
-  '>=':  { e:"Returns True if left is larger than or exactly equal to right",                     m:">= bigger or matching", cat:"OPERATOR" },
-  '+':   { e:"Adds two numbers together, or joins (concatenates) two strings end to end",          m:"+ = bring them together", cat:"OPERATOR" },
-  '-':   { e:"Subtracts the right value from the left value",                                     m:"- = take away", cat:"OPERATOR" },
-  '*':   { e:"Multiplies two numbers, or repeats a string N times",                               m:"* = multiply it out", cat:"OPERATOR" },
-  '/':   { e:"Divides left by right — the result is always a decimal (float)",                   m:"/ = split it up", cat:"OPERATOR" },
-  '//':  { e:"Floor division — divides and rounds down to the nearest whole number",               m:"// = divide, drop the decimal", cat:"OPERATOR" },
-  '**':  { e:"Raises left to the power of right — 2**8 = 256",                                   m:"** = power up", cat:"OPERATOR" },
-  '%':   { e:"Modulo — returns the remainder after dividing. 10 % 3 = 1",                        m:"% = what's left over?", cat:"OPERATOR" },
-  '+=':  { e:"Add-and-assign — x += 1 is shorthand for x = x + 1",                              m:"+= add and update", cat:"OPERATOR" },
-  '-=':  { e:"Subtract-and-assign — x -= 1 is shorthand for x = x - 1",                         m:"-= subtract and update", cat:"OPERATOR" },
-  '*=':  { e:"Multiply-and-assign — x *= 2 is shorthand for x = x * 2",                         m:"*= multiply and update", cat:"OPERATOR" },
-  '/=':  { e:"Divide-and-assign — x /= 2 is shorthand for x = x / 2",                           m:"/= divide and update", cat:"OPERATOR" },
-  // ── PUNCTUATION
-  '(':   { e:"Opens a group — holds function arguments, mathematical expressions, or conditions", m:"( = open the box", cat:"SYNTAX" },
-  ')':   { e:"Closes the group opened by the matching '('",                                       m:") = close the box", cat:"SYNTAX" },
-  '[':   { e:"Opens a list literal, or accesses an item at a specific index with [ ]",           m:"[ = open the shelf", cat:"SYNTAX" },
-  ']':   { e:"Closes the list or index access opened by '['",                                    m:"] = close the shelf", cat:"SYNTAX" },
-  '{':   { e:"Opens a dictionary (key:value pairs) or a set (unique values)",                    m:"{ = open the record book", cat:"SYNTAX" },
-  '}':   { e:"Closes the dictionary or set opened by '{'",                                       m:"} = close the record book", cat:"SYNTAX" },
-  ':':   { e:"Signals that an indented block of code follows — used after if, for, def, class", m:": = 'here's what follows'", cat:"SYNTAX" },
-  ',':   { e:"Separates items — in lists, function arguments, or multiple assignment targets",   m:", = and one more", cat:"SYNTAX" },
-  '.':   { e:"Accesses an attribute or method belonging to an object — 'reach inside for'",     m:". = reach inside for…", cat:"SYNTAX" },
-};
+let EXPLANATIONS = {};
+let MNEMONICS = {};
+
+const FALLBACK_EXPLANATION = 'this part is doing something important here';
+const FALLBACK_MNEMONIC = "we'll learn this piece as we go";
+
+function getExplanation(token, fallback = FALLBACK_EXPLANATION) {
+  return EXPLANATIONS[token] || fallback;
+}
+
+function getMnemonic(token, fallback = FALLBACK_MNEMONIC) {
+  const list = MNEMONICS[token];
+  if (Array.isArray(list) && list.length) {
+    return list[Math.floor(Math.random() * list.length)];
+  }
+  return fallback;
+}
+
+async function loadTokenData() {
+  try {
+    const [expRes, mnemRes] = await Promise.all([
+      fetch('./data/explanations.json'),
+      fetch('./data/mnemonic.json'),
+    ]);
+
+    if (!expRes.ok || !mnemRes.ok) {
+      throw new Error('Failed to load token data');
+    }
+
+    EXPLANATIONS = await expRes.json();
+    MNEMONICS = await mnemRes.json();
+  } catch (err) {
+    console.warn('Token data files could not be loaded. Using fallback tooltips.', err);
+    EXPLANATIONS = {};
+    MNEMONICS = {};
+  }
+}
 
 // Visual rules: semantic type → { color, bold, italic }
 const VR = {
@@ -637,7 +570,7 @@ function annotate(toks) {
     if (t === 'comment') {
       tk.sem = 'comment';
       tk.e = "A comment — Python ignores everything after # on this line";
-      tk.m = "# = a note to yourself";
+      tk.m = getMnemonic('#', "# = a note to yourself");
       tk.cat = "COMMENT";
       continue;
     }
@@ -645,7 +578,7 @@ function annotate(toks) {
     if (t === 'string') {
       tk.sem = 'string';
       tk.e = "A string literal — text stored exactly as written between the quotes";
-      tk.m = "String = text in a box";
+      tk.m = getMnemonic('str', "String = text in a box");
       tk.cat = "VALUE";
       continue;
     }
@@ -653,26 +586,24 @@ function annotate(toks) {
     if (t === 'number') {
       tk.sem = 'number';
       tk.e = `A numeric literal with value ${v} — Python can use this in calculations`;
-      tk.m = "Number = a value to calculate with";
+      tk.m = getMnemonic('number', "Number = a value to calculate with");
       tk.cat = "VALUE";
       continue;
     }
 
     if (t === 'operator') {
       tk.sem = 'operator';
-      const d = TD[v];
-      tk.e = d?.e || `The ${v} operator`;
-      tk.m = d?.m || v;
-      tk.cat = d?.cat || "OPERATOR";
+      tk.e = getExplanation(v, `The ${v} operator`);
+      tk.m = getMnemonic(v, v);
+      tk.cat = "OPERATOR";
       continue;
     }
 
     if (t === 'punctuation') {
       tk.sem = 'syntax';
-      const d = TD[v];
-      tk.e = d?.e || '';
-      tk.m = d?.m || '';
-      tk.cat = d?.cat || "SYNTAX";
+      tk.e = getExplanation(v, '');
+      tk.m = getMnemonic(v, '');
+      tk.cat = "SYNTAX";
       continue;
     }
 
@@ -685,21 +616,31 @@ function annotate(toks) {
     // ── identifiers
     if (t === 'identifier') {
       const pv = prev(tk), nx = next(tk);
-      const d = TD[v];
 
       // Keywords
       if (KW.has(v)) {
-        const data = d || {};
-        tk.e = data.e || `The ${v} keyword`;
-        tk.m = data.m || v;
-        tk.cat = data.cat || 'KEYWORD';
+        if (['for','while','in','break','continue'].includes(v)) {
+          tk.sem = 'loop';
+          tk.cat = 'LOOP';
+        } else if (['if','elif','else','not','and','or','is','assert'].includes(v)) {
+          tk.sem = 'condition';
+          tk.cat = 'CONDITION';
+        } else if (['def','return','lambda','yield'].includes(v)) {
+          tk.sem = 'function_kw';
+          tk.cat = 'FUNCTION';
+        } else if (v === 'class') {
+          tk.sem = 'class_kw';
+          tk.cat = 'STRUCTURE';
+        } else if (['True','False','None'].includes(v)) {
+          tk.sem = 'value';
+          tk.cat = 'VALUE';
+        } else {
+          tk.sem = 'structure';
+          tk.cat = 'STRUCTURE';
+        }
 
-        if (['for','while','in','break','continue'].includes(v)) tk.sem = 'loop';
-        else if (['if','elif','else','not','and','or','is','assert'].includes(v)) tk.sem = 'condition';
-        else if (['def','return','lambda','yield'].includes(v)) tk.sem = 'function_kw';
-        else if (v === 'class') tk.sem = 'class_kw';
-        else if (['True','False','None'].includes(v)) tk.sem = 'value';
-        else tk.sem = 'structure';
+        tk.e = getExplanation(v, `The ${v} keyword`);
+        tk.m = getMnemonic(v, v);
         continue;
       }
 
@@ -733,8 +674,8 @@ function annotate(toks) {
       // print specifically = OUTPUT
       if (v === 'print' && nx?.v === '(') {
         tk.sem = 'output';
-        tk.e = TD['print'].e;
-        tk.m = TD['print'].m;
+        tk.e = getExplanation('print');
+        tk.m = getMnemonic('print');
         tk.cat = 'OUTPUT';
         continue;
       }
@@ -742,9 +683,9 @@ function annotate(toks) {
       // Other builtins
       if (BUILTINS.has(v) && nx?.v === '(') {
         tk.sem = 'builtin';
-        tk.e = d?.e || `The built-in Python function ${v}()`;
-        tk.m = d?.m || `${v}() = built-in tool`;
-        tk.cat = d?.cat || 'FUNCTION';
+        tk.e = getExplanation(v, `The built-in Python function ${v}()`);
+        tk.m = getMnemonic(v, `${v}() = built-in tool`);
+        tk.cat = 'FUNCTION';
         continue;
       }
 
@@ -962,9 +903,14 @@ for i in range(1, 16):
     else:
         print(i)`;
 
-codeInput.value = SAMPLE;
-updateLineNums(SAMPLE);
-render(SAMPLE);
+      async function initApp() {
+        await loadTokenData();
+        codeInput.value = SAMPLE;
+        updateLineNums(SAMPLE);
+        render(SAMPLE);
+      }
+
+      initApp();
 </script>
 </body>
 </html>

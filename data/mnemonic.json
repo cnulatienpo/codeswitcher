@@ -1,0 +1,284 @@
+{
+  "for": [
+    "FOR each item — do this"
+  ],
+  "while": [
+    "WHILE this is true — keep going"
+  ],
+  "in": [
+    "Pull each item IN from here"
+  ],
+  "break": [
+    "BREAK out — stop the loop now"
+  ],
+  "continue": [
+    "CONTINUE to the next one"
+  ],
+  "if": [
+    "IF this is true — do it"
+  ],
+  "elif": [
+    "ELSE IF the first didn't match — try this"
+  ],
+  "else": [
+    "In every OTHER case — do this"
+  ],
+  "not": [
+    "NOT = flip it around"
+  ],
+  "and": [
+    "AND = both sides must win"
+  ],
+  "or": [
+    "OR = just one needs to work"
+  ],
+  "is": [
+    "IS = literally the same thing?"
+  ],
+  "assert": [
+    "ASSERT = this must be true, I promise"
+  ],
+  "def": [
+    "DEFine a new ability"
+  ],
+  "return": [
+    "RETURN this result to the caller"
+  ],
+  "lambda": [
+    "LAMBDA = a one-liner function"
+  ],
+  "yield": [
+    "YIELD = give one, pause, resume"
+  ],
+  "class": [
+    "CLASS = blueprint for objects"
+  ],
+  "with": [
+    "WITH this open — do your work"
+  ],
+  "as": [
+    "AS = call it this instead"
+  ],
+  "import": [
+    "IMPORT = grab tools from another toolbox"
+  ],
+  "from": [
+    "FROM this toolbox — grab..."
+  ],
+  "try": [
+    "TRY this — I hope it works"
+  ],
+  "except": [
+    "EXCEPT when it breaks — catch it"
+  ],
+  "finally": [
+    "FINALLY — runs no matter what"
+  ],
+  "raise": [
+    "RAISE the alarm — something went wrong"
+  ],
+  "pass": [
+    "PASS = skip this for now"
+  ],
+  "global": [
+    "GLOBAL = use the outer one"
+  ],
+  "nonlocal": [
+    "NONLOCAL = use the enclosing one"
+  ],
+  "del": [
+    "DEL = delete this"
+  ],
+  "async": [
+    "ASYNC = runs without waiting"
+  ],
+  "await": [
+    "AWAIT = wait for this, then continue"
+  ],
+  "True": [
+    "TRUE = yes, it's on"
+  ],
+  "False": [
+    "FALSE = no, it's off"
+  ],
+  "None": [
+    "NONE = empty hands"
+  ],
+  "print": [
+    "PRINT = shout it out loud"
+  ],
+  "len": [
+    "LEN = how long is this?"
+  ],
+  "range": [
+    "RANGE = count from here to there"
+  ],
+  "input": [
+    "INPUT = ask the user"
+  ],
+  "int": [
+    "INT = make it a whole number"
+  ],
+  "str": [
+    "STR = turn it into text"
+  ],
+  "float": [
+    "FLOAT = make it a decimal"
+  ],
+  "list": [
+    "LIST = make it a list"
+  ],
+  "dict": [
+    "DICT = a lookup table"
+  ],
+  "set": [
+    "SET = a bag of unique things"
+  ],
+  "tuple": [
+    "TUPLE = a locked list"
+  ],
+  "bool": [
+    "BOOL = is it truthy?"
+  ],
+  "type": [
+    "TYPE = what kind of thing is this?"
+  ],
+  "enumerate": [
+    "ENUMERATE = number each item"
+  ],
+  "zip": [
+    "ZIP = stitch lists together"
+  ],
+  "map": [
+    "MAP = do this to each one"
+  ],
+  "filter": [
+    "FILTER = only keep what passes"
+  ],
+  "sorted": [
+    "SORTED = put them in order"
+  ],
+  "reversed": [
+    "REVERSED = flip the order"
+  ],
+  "sum": [
+    "SUM = add them all up"
+  ],
+  "max": [
+    "MAX = find the biggest"
+  ],
+  "min": [
+    "MIN = find the smallest"
+  ],
+  "abs": [
+    "ABS = always positive"
+  ],
+  "round": [
+    "ROUND = nearest whole"
+  ],
+  "isinstance": [
+    "isinstance = is it this type?"
+  ],
+  "open": [
+    "OPEN = unlock this file"
+  ],
+  "any": [
+    "ANY = does even one pass?"
+  ],
+  "all": [
+    "ALL = do they all pass?"
+  ],
+  "repr": [
+    "REPR = show me the internals"
+  ],
+  "hasattr": [
+    "HASATTR = does it have this?"
+  ],
+  "getattr": [
+    "GETATTR = fetch this from it"
+  ],
+  "callable": [
+    "CALLABLE = can I call it?"
+  ],
+  "=": [
+    "= means 'remember this as'"
+  ],
+  "==": [
+    "== means 'are these the same?'"
+  ],
+  "!=": [
+    "!= means 'are these different?'"
+  ],
+  "<": [
+    "< points to the smaller side"
+  ],
+  ">": [
+    "> points away from the smaller"
+  ],
+  "<=": [
+    "<= smaller or matching"
+  ],
+  ">=": [
+    ">= bigger or matching"
+  ],
+  "+": [
+    "+ = bring them together"
+  ],
+  "-": [
+    "- = take away"
+  ],
+  "*": [
+    "* = multiply it out"
+  ],
+  "/": [
+    "/ = split it up"
+  ],
+  "//": [
+    "// = divide, drop the decimal"
+  ],
+  "**": [
+    "** = power up"
+  ],
+  "%": [
+    "% = what's left over?"
+  ],
+  "+=": [
+    "+= add and update"
+  ],
+  "-=": [
+    "-= subtract and update"
+  ],
+  "*=": [
+    "*= multiply and update"
+  ],
+  "/=": [
+    "/= divide and update"
+  ],
+  "(": [
+    "( = open the box"
+  ],
+  ")": [
+    ") = close the box"
+  ],
+  "[": [
+    "[ = open the shelf"
+  ],
+  "]": [
+    "] = close the shelf"
+  ],
+  "{": [
+    "{ = open the record book"
+  ],
+  "}": [
+    "} = close the record book"
+  ],
+  ":": [
+    ": = 'here's what follows'"
+  ],
+  ",": [
+    ", = and one more"
+  ],
+  ".": [
+    ". = reach inside for…"
+  ]
+}
